@@ -39,7 +39,7 @@ class MessageResource(Resource):
 
             return {'message': 'created'}, 201
         except errors.AlreadyExists:
-            return f'Already exists: "{message_id}"', 406
+            return {'error': f'Already exists: "{message_id}"'}, 406
 
     def delete(self, message_id: str):
         try:
