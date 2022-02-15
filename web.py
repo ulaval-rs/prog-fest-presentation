@@ -20,7 +20,7 @@ class MessageResource(Resource):
             return {message_id: message}, 200
 
         except errors.NotFoundError:
-            return f'Not Found: "{message_id}"', 404
+            return {'error': f'Not Found: "{message_id}"'}, 404
 
     def put(self, message_id: str):
         data = request.form['message']
@@ -30,14 +30,14 @@ class MessageResource(Resource):
 
             return 'Updated', 200
         except errors.NotFoundError:
-            return f'Not Found: "{message_id}"', 404
+            return {'error': f'Not Found: "{message_id}"'}, 404
 
     def post(self, message_id: str):
         message = request.form['message']
         try:
             dao.create(message_id, message)
 
-            return 'Created', 201
+            return {'message': 'created'}, 201
         except errors.AlreadyExists:
             return f'Already exists: "{message_id}"', 406
 
@@ -47,8 +47,7 @@ class MessageResource(Resource):
 
             return '', 200
         except errors.NotFoundError:
-            return f'Not Found: "{message_id}"', 404
-
+            return {'error': f'Not Found: "{message_id}"'}, 404
 
 
 class TokenResource(Resource):
