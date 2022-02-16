@@ -1,15 +1,28 @@
-from hashlib import sha256
+from typing import Dict, List
 
 from flask import Flask, request
 from flask_restful import Api, Resource
 
-from web_app import errors, services, constant
+from web_app import constant, errors
 from web_app.dao import Dao
 
 app = Flask(__name__)
 api = Api(app)
 
 dao = Dao(constant.SHELVE_FILENAME)
+
+tasks = [
+    {
+        'id': 1,
+        'title': "Aller à l'épicerie",
+        'done': False
+    },
+    {
+        'id': 2,
+        'title': "Étudier pour l'examen d'électromag",
+        'done': False
+    }
+]
 
 
 class HelloResource(Resource):
@@ -18,60 +31,74 @@ class HelloResource(Resource):
         return {'message': 'Bonjour le monde!'}
 
 
-class MessageResource(Resource):
+class TodosResource(Resource):
 
-    def get(self, message_id=None):
-        try:
-            message = dao.retrieve(message_id)
-            return {message_id: message}, 200
+    def __init__(self, tasks):
+        self.tasks = tasks
 
-        except errors.NotFoundError:
-            return {'error': f'Not Found: "{message_id}"'}, 404
+    def get(self):
+        return tasks
 
-    def put(self, message_id: str):
-        data = request.form['message']
+    def post(self):
+        ids = [task['id'] for task in self.tasks]
+        new_id = max(ids) + 1
 
-        try:
-            dao.update(message_id, data)
+        if 'title' not in request.form:
+            return {'error': 'Must provide "title" data'}, 400
 
-            return 'Updated', 200
-        except errors.NotFoundError:
-            return {'error': f'Not Found: "{message_id}"'}, 404
+        if 'done' in request.form:
+            done = bool(request.form['done'])
+        else:
+            done = False
 
-    def post(self, message_id: str):
-        message = request.form['message']
-        try:
-            dao.create(message_id, message)
+        self.tasks.append(
+            {
+                'id': new_id,
+                'title': request.form['title'],
+                'done': done
+            }
+        )
 
-            return {'message': 'created'}, 201
-        except errors.AlreadyExists:
-            return {'error': f'Already exists: "{message_id}"'}, 406
-
-    def delete(self, message_id: str):
-        try:
-            dao.delete(message_id)
-
-            return '', 200
-        except errors.NotFoundError:
-            return {'error': f'Not Found: "{message_id}"'}, 404
+        return {'message': 'Tâche ajoutée'}, 201
 
 
-class TokenResource(Resource):
+class TodoResource(Resource):
 
-    def get(self, idul: str):
-        if services.user_exists(idul):
-            return services.get_token(), 200
+    def __init__(self, tasks: List[Dict]):
+        self.tasks = tasks
 
-        return '', 404
+    def get(self, task_id):
+        for task in self.tasks:
+            if task['id'] == task_id:
+                return task
 
-    def post(self, idul):
+        return {'error': f'Task ID "{task_id}" not found'}, 404
 
-        return {'token': sha256(idul)}
+    def put(self, task_id):
+        if 'done' in request.form:
+            done = request.form['done']
+        else:
+            return {'error': 'Must provide "done" data, ex. {"done": true}'}, 400
+
+        for task in self.tasks:
+            if task['id'] == task_id:
+                task['done'] = done
+                return {'message': f'"{task_id}" updated'}, 200
+
+        return {'error': f'Not Found: "{task_id}"'}, 404
+
+    def delete(self, task_id):
+        for i, task in enumerate(self.tasks):
+            if task['id'] == task_id:
+                del self.tasks[i]
+                return {'message': 'Deleted'}, 200
+
+        return {'error': f'Not Found: "{task_id}"'}, 404
 
 
 api.add_resource(HelloResource, '/hello_world')
-api.add_resource(MessageResource, '/api/messages/<string:message_id>')
-api.add_resource(TokenResource, '/api/token/<string:idul>')
+api.add_resource(TodosResource, '/todo', resource_class_kwargs={'tasks': tasks})
+api.add_resource(TodoResource, '/todo/<int:task_id>', resource_class_kwargs={'tasks': tasks})
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
