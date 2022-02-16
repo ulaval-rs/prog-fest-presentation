@@ -8,11 +8,18 @@
 !web_app/
 !web_app/**
 
+!web.py
+
 !images/
 !images/**
 
-!presentation.ipynb
+!reveal.js/
+!reveal.js/**
 
-!web.py
+!build.sh
+
+!presentation.ipynb
+!presentation.slides.html
+
 
 *.pyc
