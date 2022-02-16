@@ -12,6 +12,12 @@ api = Api(app)
 dao = Dao(constant.SHELVE_FILENAME)
 
 
+class HelloResource(Resource):
+
+    def get(self):
+        return {'message': 'Bonjour le monde!'}
+
+
 class MessageResource(Resource):
 
     def get(self, message_id=None):
@@ -63,6 +69,7 @@ class TokenResource(Resource):
         return {'token': sha256(idul)}
 
 
+api.add_resource(HelloResource, '/hello_world')
 api.add_resource(MessageResource, '/api/messages/<string:message_id>')
 api.add_resource(TokenResource, '/api/token/<string:idul>')
 
