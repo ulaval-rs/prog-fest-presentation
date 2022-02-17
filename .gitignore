@@ -13,13 +13,11 @@
 !images/
 !images/**
 
-!reveal.js/
-!reveal.js/**
-
 !build.sh
 
 !presentation.ipynb
 !presentation.slides.html
 
+!my-theme.css
 
 *.pyc
