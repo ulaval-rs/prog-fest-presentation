@@ -2,7 +2,7 @@
 
 ## Build les slides
 ```shell
-shift build.sh
+sh build.sh
 ```
 
 Ouvrir `presentation.slides.html` avec votre browser favori.
