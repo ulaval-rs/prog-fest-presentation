@@ -17,11 +17,11 @@ tasks = [
         'title': "Aller à l'épicerie",
         'done': False
     },
-    {
-        'id': 2,
-        'title': "Étudier pour l'examen d'électromag",
-        'done': False
-    }
+    # {
+    #     'id': 2,
+    #     'title': "Étudier pour l'examen d'électromag",
+    #     'done': False
+    # }
 ]
 
 
