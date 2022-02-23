@@ -3,13 +3,8 @@ from typing import Dict, List
 from flask import Flask, request
 from flask_restful import Api, Resource
 
-from web_app import constant, errors
-from web_app.dao import Dao
-
 app = Flask(__name__)
 api = Api(app)
-
-dao = Dao(constant.SHELVE_FILENAME)
 
 tasks = [
     {
